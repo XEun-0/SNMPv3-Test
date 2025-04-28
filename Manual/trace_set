@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -euo pipefail
+
+# Temp capture file
+TCPDUMP_FILE="/tmp/snmp_capture.pcap"
+
+# Remove old capture file if it exists
+rm -f "$TCPDUMP_FILE"
+
+ENGINE_ID=$( snmpget -v3 -l authPriv -u myuser -a SHA -A mypassword -x AES -X myencryptionpassword -e 80001f88806619617ca00d0f6800000000 192.168.100.2 iso.3.6.1.6.3.10.2.1.1.0 \
+    | grep -oP '(?<=Hex-STRING: ).*' \
+    | tr -d '[:space:]')
+echo $ENGINE_ID
+
+# Start tcpdump to capture SNMP packets
+echo "Starting tcpdump capture..."
+tcpdump -i any udp port 161 -w "$TCPDUMP_FILE" &
+TCPDUMP_PID=$!
+
+# Wait for tcpdump to initialize
+sleep 1
+
+# Run the raw snmpset command
+echo "Running snmpset command..."
+snmpset -v3 -l authPriv -u myuser -a SHA -A mypassword -x AES -X myencryptionpassword -e 80001f88806619617ca00d0f6800000000 192.168.100.2 iso.3.6.1.2.1.1.5.0 s "engine"
+
+# Wait a moment to ensure tcpdump captures everything
+sleep 1
+
+# Kill tcpdump
+echo "Stopping tcpdump..."
+kill "$TCPDUMP_PID"
+wait "$TCPDUMP_PID" 2>/dev/null || true
+
+echo
+echo "========= RAW PACKET (tcpdump -XX) ========="
+tcpdump -XX -r "$TCPDUMP_FILE"
+
+echo
+echo "========= HUMAN READABLE (tshark -V) ========="
+tshark -r "$TCPDUMP_FILE" -V

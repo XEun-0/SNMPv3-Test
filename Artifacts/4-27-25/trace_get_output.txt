@@ -1,0 +1,394 @@
+root@b7e98b30dffa:/app# ./trace_get
+80001F88806619617CA00D0F68000000
+Retrieved Engine ID: 80001F88806619617CA00D0F68000000
+Starting tcpdump capture...
+tcpdump: data link type LINUX_SLL2
+tcpdump: listening on any, link-type LINUX_SLL2 (Linux cooked v2), snapshot length 262144 bytes
+Running snmpget command...
+iso.3.6.1.6.3.10.2.1.1.0 = Hex-STRING: 80 00 1F 88 80 66 19 61 7C A0 0D 0F 68 00 00 00
+00
+Stopping tcpdump...
+4 packets captured
+4 packets received by filter
+0 packets dropped by kernel
+
+========= RAW PACKET (tcpdump -XX) =========
+reading from file /tmp/snmp_capture.pcap, link-type LINUX_SLL2 (Linux cooked v2), snapshot length 262144
+Warning: interface names might be incorrect
+05:15:20.193888 eth0  Out IP b7e98b30dffa.36833 > snmp_container.manual_my_network.snmp:  F=r U="" E= C="" GetRequest(14)
+        0x0000:  0800 0000 0000 0002 0001 0406 de8d db5d  ...............]
+        0x0010:  bce8 0000 4500 005c 17c1 4000 4011 d979  ....E..\..@.@..y
+        0x0020:  c0a8 6403 c0a8 6402 8fe1 00a1 0048 49b0  ..d...d......HI.
+        0x0030:  303e 0201 0330 1102 045a 78b3 1802 0300  0>...0...Zx.....
+        0x0040:  ffe3 0401 0402 0103 0410 300e 0400 0201  ..........0.....
+        0x0050:  0002 0100 0400 0400 0400 3014 0400 0400  ..........0.....
+        0x0060:  a00e 0204 3016 fa67 0201 0002 0100 3000  ....0..g......0.
+05:15:20.194172 eth0  In  IP snmp_container.manual_my_network.snmp > b7e98b30dffa.36833:  F= U="" E=_80_00_1f_88_80_66_19_61_7c_a0_0d_0f_68_00_00_00_00 C="" Report(31)  S:snmpUsmMIB.usmMIBObjects.usmStats.usmStatsUnknownEngineIDs.0=31
+        0x0000:  0800 0000 0000 0002 0001 0006 72b0 e188  ............r...
+        0x0010:  9c3b 0000 4500 0090 00bb 4000 4011 f04b  .;..E.....@.@..K
+        0x0020:  c0a8 6402 c0a8 6403 00a1 8fe1 007c 49e4  ..d...d......|I.
+        0x0030:  3072 0201 0330 1102 045a 78b3 1802 0300  0r...0...Zx.....
+        0x0040:  ffe3 0401 0002 0103 0422 3020 0411 8000  ........."0.....
+        0x0050:  1f88 8066 1961 7ca0 0d0f 6800 0000 0002  ...f.a|...h.....
+        0x0060:  0101 0202 0148 0400 0400 0400 3036 0411  .....H......06..
+        0x0070:  8000 1f88 8066 1961 7ca0 0d0f 6800 0000  .....f.a|...h...
+        0x0080:  0004 00a8 1f02 0430 16fa 6702 0100 0201  .......0..g.....
+        0x0090:  0030 1130 0f06 0a2b 0601 0603 0f01 0104  .0.0...+........
+        0x00a0:  0041 011f                                .A..
+05:15:20.194332 eth0  Out IP b7e98b30dffa.36833 > snmp_container.manual_my_network.snmp:  F=apr U="myuser" [!scoped PDU]c5_ff_53_6b_2b_c9_f3_2c_65_0c_67_31_58_50_26_d3_23_16_86_e7_c6_f4_20_66_31_58_2c_02_12_7d_6e_d7_e6_f7_b1_9c_60_b7_33_d0_c4_90_c2_d9_6e_e5_05_2a_6f_1c_81_54_df_ec_b9
+        0x0000:  0800 0000 0000 0002 0001 0406 de8d db5d  ...............]
+        0x0010:  bce8 0000 4500 00ac 17c2 4000 4011 d928  ....E.....@.@..(
+        0x0020:  c0a8 6403 c0a8 6402 8fe1 00a1 0098 4a00  ..d...d.......J.
+        0x0030:  3081 8d02 0103 3011 0204 5a78 b317 0203  0.....0...Zx....
+        0x0040:  00ff e304 0107 0201 0304 3c30 3a04 1180  ..........<0:...
+        0x0050:  001f 8880 6619 617c a00d 0f68 0000 0000  ....f.a|...h....
+        0x0060:  0201 0102 0201 4804 066d 7975 7365 7204  ......H..myuser.
+        0x0070:  0c38 2619 6c3d 6204 407c ac89 8b04 08cf  .8&.l=b.@|......
+        0x0080:  fe58 fd01 2a6b 1304 37c5 ff53 6b2b c9f3  .X..*k..7..Sk+..
+        0x0090:  2c65 0c67 3158 5026 d323 1686 e7c6 f420  ,e.g1XP&.#......
+        0x00a0:  6631 582c 0212 7d6e d7e6 f7b1 9c60 b733  f1X,..}n.....`.3
+        0x00b0:  d0c4 90c2 d96e e505 2a6f 1c81 54df ecb9  .....n..*o..T...
+05:15:20.194517 eth0  In  IP snmp_container.manual_my_network.snmp > b7e98b30dffa.36833:  F=ap U="myuser" [!scoped PDU]0f_b7_34_d8_45_fa_ef_69_33_3a_89_b1_60_9b_04_0f_f4_8c_7c_38_4a_b6_2c_49_ae_58_59_dc_68_92_d6_04_10_bf_5c_76_a7_c5_c3_bc_a7_ea_14_df_1e_e5_dd_d8_2c_3c_36_8d_74_1b_c0_28_59_9e_8c_6f_a3_da_60_ee_2c_9e_40_fc_c7_31_91_2a
+        0x0000:  0800 0000 0000 0002 0001 0006 72b0 e188  ............r...
+        0x0010:  9c3b 0000 4500 00bd 00bc 4000 4011 f01d  .;..E.....@.@...
+        0x0020:  c0a8 6402 c0a8 6403 00a1 8fe1 00a9 4a11  ..d...d.......J.
+        0x0030:  3081 9e02 0103 3011 0204 5a78 b317 0203  0.....0...Zx....
+        0x0040:  00ff e304 0103 0201 0304 3c30 3a04 1180  ..........<0:...
+        0x0050:  001f 8880 6619 617c a00d 0f68 0000 0000  ....f.a|...h....
+        0x0060:  0201 0102 0201 4804 066d 7975 7365 7204  ......H..myuser.
+        0x0070:  0c94 fc9b 7f58 d63f 0784 1d23 4504 08f4  .....X.?...#E...
+        0x0080:  a9e5 22cb a9bf 9c04 480f b734 d845 faef  ..".....H..4.E..
+        0x0090:  6933 3a89 b160 9b04 0ff4 8c7c 384a b62c  i3:..`.....|8J.,
+        0x00a0:  49ae 5859 dc68 92d6 0410 bf5c 76a7 c5c3  I.XY.h.....\v...
+        0x00b0:  bca7 ea14 df1e e5dd d82c 3c36 8d74 1bc0  .........,<6.t..
+        0x00c0:  2859 9e8c 6fa3 da60 ee2c 9e40 fcc7 3191  (Y..o..`.,.@..1.
+        0x00d0:  2a                                       *
+
+========= HUMAN READABLE (tshark -V) =========
+Running as user "root" and group "root". This could be dangerous.
+Frame 1: 112 bytes on wire (896 bits), 112 bytes captured (896 bits)
+    Encapsulation type: Linux cooked-mode capture v2 (210)
+    Arrival Time: Apr 28, 2025 05:15:20.193888000 UTC
+    UTC Arrival Time: Apr 28, 2025 05:15:20.193888000 UTC
+    Epoch Arrival Time: 1745817320.193888000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000000000 seconds]
+    [Time delta from previous displayed frame: 0.000000000 seconds]
+    [Time since reference or first frame: 0.000000000 seconds]
+    Frame Number: 1
+    Frame Length: 112 bytes (896 bits)
+    Capture Length: 112 bytes (896 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: sll:ethertype:ip:udp:snmp]
+Linux cooked capture v2
+    Protocol: IPv4 (0x0800)
+    Interface index: 2
+    Link-layer address type: Ethernet (1)
+    Packet type: Sent by us (4)
+    Link-layer address length: 6
+    Source: de:8d:db:5d:bc:e8 (de:8d:db:5d:bc:e8)
+    Unused: 0000
+Internet Protocol Version 4, Src: 192.168.100.3, Dst: 192.168.100.2
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 92
+    Identification: 0x17c1 (6081)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0xd979 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 192.168.100.3
+    Destination Address: 192.168.100.2
+User Datagram Protocol, Src Port: 36833, Dst Port: 161
+    Source Port: 36833
+    Destination Port: 161
+    Length: 72
+    Checksum: 0x49b0 [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 0.000000000 seconds]
+        [Time since previous frame: 0.000000000 seconds]
+    UDP payload (64 bytes)
+Simple Network Management Protocol
+    msgVersion: snmpv3 (3)
+    msgGlobalData
+        msgID: 1517859608
+        msgMaxSize: 65507
+        msgFlags: 04
+            .... .1.. = Reportable: Set
+            .... ..0. = Encrypted: Not set
+            .... ...0 = Authenticated: Not set
+        msgSecurityModel: USM (3)
+    msgAuthoritativeEngineID: <MISSING>
+    msgAuthoritativeEngineBoots: 0
+    msgAuthoritativeEngineTime: 0
+    msgUserName:
+    msgAuthenticationParameters: <MISSING>
+    msgPrivacyParameters: <MISSING>
+    msgData: plaintext (0)
+        plaintext
+            contextEngineID: <MISSING>
+            contextName:
+            data: get-request (0)
+                get-request
+                    request-id: 806812263
+                    error-status: noError (0)
+                    error-index: 0
+                    variable-bindings: 0 items
+
+Frame 2: 164 bytes on wire (1312 bits), 164 bytes captured (1312 bits)
+    Encapsulation type: Linux cooked-mode capture v2 (210)
+    Arrival Time: Apr 28, 2025 05:15:20.194172000 UTC
+    UTC Arrival Time: Apr 28, 2025 05:15:20.194172000 UTC
+    Epoch Arrival Time: 1745817320.194172000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000284000 seconds]
+    [Time delta from previous displayed frame: 0.000284000 seconds]
+    [Time since reference or first frame: 0.000284000 seconds]
+    Frame Number: 2
+    Frame Length: 164 bytes (1312 bits)
+    Capture Length: 164 bytes (1312 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: sll:ethertype:ip:udp:snmp]
+Linux cooked capture v2
+    Protocol: IPv4 (0x0800)
+    Interface index: 2
+    Link-layer address type: Ethernet (1)
+    Packet type: Unicast to us (0)
+    Link-layer address length: 6
+    Source: 72:b0:e1:88:9c:3b (72:b0:e1:88:9c:3b)
+    Unused: 0000
+Internet Protocol Version 4, Src: 192.168.100.2, Dst: 192.168.100.3
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 144
+    Identification: 0x00bb (187)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0xf04b [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 192.168.100.2
+    Destination Address: 192.168.100.3
+User Datagram Protocol, Src Port: 161, Dst Port: 36833
+    Source Port: 161
+    Destination Port: 36833
+    Length: 124
+    Checksum: 0x49e4 [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 0.000284000 seconds]
+        [Time since previous frame: 0.000284000 seconds]
+    UDP payload (116 bytes)
+Simple Network Management Protocol
+    msgVersion: snmpv3 (3)
+    msgGlobalData
+        msgID: 1517859608
+        msgMaxSize: 65507
+        msgFlags: 00
+            .... .0.. = Reportable: Not set
+            .... ..0. = Encrypted: Not set
+            .... ...0 = Authenticated: Not set
+        msgSecurityModel: USM (3)
+    msgAuthoritativeEngineID: 80001f88806619617ca00d0f6800000000
+        1... .... = Engine ID Conformance: RFC3411 (SNMPv3)
+        Engine Enterprise ID: net-snmp (8072)
+        Engine ID Format: Reserved/Enterprise-specific (128): Net-SNMP Random
+        Engine ID Data: 6619617c
+        Engine ID Data: Creation Time: Apr 28, 2025 05:09:52 UTC
+    msgAuthoritativeEngineBoots: 1
+    msgAuthoritativeEngineTime: 328
+    msgUserName:
+    msgAuthenticationParameters: <MISSING>
+    msgPrivacyParameters: <MISSING>
+    msgData: plaintext (0)
+        plaintext
+            contextEngineID: 80001f88806619617ca00d0f6800000000
+                1... .... = Engine ID Conformance: RFC3411 (SNMPv3)
+                Engine Enterprise ID: net-snmp (8072)
+                Engine ID Format: Reserved/Enterprise-specific (128): Net-SNMP Random
+                Engine ID Data: 6619617c
+                Engine ID Data: Creation Time: Apr 28, 2025 05:09:52 UTC
+            contextName:
+            data: report (8)
+                report
+                    request-id: 806812263
+                    error-status: noError (0)
+                    error-index: 0
+                    variable-bindings: 1 item
+                        1.3.6.1.6.3.15.1.1.4.0: 31
+                            Object Name: 1.3.6.1.6.3.15.1.1.4.0 (iso.3.6.1.6.3.15.1.1.4.0)
+                            Value (Counter32): 31
+
+Frame 3: 192 bytes on wire (1536 bits), 192 bytes captured (1536 bits)
+    Encapsulation type: Linux cooked-mode capture v2 (210)
+    Arrival Time: Apr 28, 2025 05:15:20.194332000 UTC
+    UTC Arrival Time: Apr 28, 2025 05:15:20.194332000 UTC
+    Epoch Arrival Time: 1745817320.194332000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000160000 seconds]
+    [Time delta from previous displayed frame: 0.000160000 seconds]
+    [Time since reference or first frame: 0.000444000 seconds]
+    Frame Number: 3
+    Frame Length: 192 bytes (1536 bits)
+    Capture Length: 192 bytes (1536 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: sll:ethertype:ip:udp:snmp]
+Linux cooked capture v2
+    Protocol: IPv4 (0x0800)
+    Interface index: 2
+    Link-layer address type: Ethernet (1)
+    Packet type: Sent by us (4)
+    Link-layer address length: 6
+    Source: de:8d:db:5d:bc:e8 (de:8d:db:5d:bc:e8)
+    Unused: 0000
+Internet Protocol Version 4, Src: 192.168.100.3, Dst: 192.168.100.2
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 172
+    Identification: 0x17c2 (6082)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0xd928 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 192.168.100.3
+    Destination Address: 192.168.100.2
+User Datagram Protocol, Src Port: 36833, Dst Port: 161
+    Source Port: 36833
+    Destination Port: 161
+    Length: 152
+    Checksum: 0x4a00 [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 0.000444000 seconds]
+        [Time since previous frame: 0.000160000 seconds]
+    UDP payload (144 bytes)
+Simple Network Management Protocol
+    msgVersion: snmpv3 (3)
+    msgGlobalData
+        msgID: 1517859607
+        msgMaxSize: 65507
+        msgFlags: 07
+            .... .1.. = Reportable: Set
+            .... ..1. = Encrypted: Set
+            .... ...1 = Authenticated: Set
+        msgSecurityModel: USM (3)
+    msgAuthoritativeEngineID: 80001f88806619617ca00d0f6800000000
+        1... .... = Engine ID Conformance: RFC3411 (SNMPv3)
+        Engine Enterprise ID: net-snmp (8072)
+        Engine ID Format: Reserved/Enterprise-specific (128): Net-SNMP Random
+        Engine ID Data: 6619617c
+        Engine ID Data: Creation Time: Apr 28, 2025 05:09:52 UTC
+    msgAuthoritativeEngineBoots: 1
+    msgAuthoritativeEngineTime: 328
+    msgUserName: myuser
+    msgAuthenticationParameters: 3826196c3d6204407cac898b
+    msgPrivacyParameters: cffe58fd012a6b13
+    msgData: encryptedPDU (1)
+        encryptedPDU: c5ff536b2bc9f32c650c6731585026d3231686e7c6f4206631582c02127d6ed7e6f7b19c60b733d0c490c2d96ee5052a6f1c8154dfecb9
+
+Frame 4: 209 bytes on wire (1672 bits), 209 bytes captured (1672 bits)
+    Encapsulation type: Linux cooked-mode capture v2 (210)
+    Arrival Time: Apr 28, 2025 05:15:20.194517000 UTC
+    UTC Arrival Time: Apr 28, 2025 05:15:20.194517000 UTC
+    Epoch Arrival Time: 1745817320.194517000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000185000 seconds]
+    [Time delta from previous displayed frame: 0.000185000 seconds]
+    [Time since reference or first frame: 0.000629000 seconds]
+    Frame Number: 4
+    Frame Length: 209 bytes (1672 bits)
+    Capture Length: 209 bytes (1672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: sll:ethertype:ip:udp:snmp]
+Linux cooked capture v2
+    Protocol: IPv4 (0x0800)
+    Interface index: 2
+    Link-layer address type: Ethernet (1)
+    Packet type: Unicast to us (0)
+    Link-layer address length: 6
+    Source: 72:b0:e1:88:9c:3b (72:b0:e1:88:9c:3b)
+    Unused: 0000
+Internet Protocol Version 4, Src: 192.168.100.2, Dst: 192.168.100.3
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 189
+    Identification: 0x00bc (188)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0xf01d [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 192.168.100.2
+    Destination Address: 192.168.100.3
+User Datagram Protocol, Src Port: 161, Dst Port: 36833
+    Source Port: 161
+    Destination Port: 36833
+    Length: 169
+    Checksum: 0x4a11 [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 0.000629000 seconds]
+        [Time since previous frame: 0.000185000 seconds]
+    UDP payload (161 bytes)
+Simple Network Management Protocol
+    msgVersion: snmpv3 (3)
+    msgGlobalData
+        msgID: 1517859607
+        msgMaxSize: 65507
+        msgFlags: 03
+            .... .0.. = Reportable: Not set
+            .... ..1. = Encrypted: Set
+            .... ...1 = Authenticated: Set
+        msgSecurityModel: USM (3)
+    msgAuthoritativeEngineID: 80001f88806619617ca00d0f6800000000
+        1... .... = Engine ID Conformance: RFC3411 (SNMPv3)
+        Engine Enterprise ID: net-snmp (8072)
+        Engine ID Format: Reserved/Enterprise-specific (128): Net-SNMP Random
+        Engine ID Data: 6619617c
+        Engine ID Data: Creation Time: Apr 28, 2025 05:09:52 UTC
+    msgAuthoritativeEngineBoots: 1
+    msgAuthoritativeEngineTime: 328
+    msgUserName: myuser
+    msgAuthenticationParameters: 94fc9b7f58d63f07841d2345
+    msgPrivacyParameters: f4a9e522cba9bf9c
+    msgData: encryptedPDU (1)
+        encryptedPDU: 0fb734d845faef69333a89b1609b040ff48c7c384ab62c49ae5859dc6892d60410bf5c76a7c5c3bca7ea14df1ee5ddd82c3c368d741bc028599e8c6fa3da60ee2c9e40fcc731912a

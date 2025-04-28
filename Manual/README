@@ -9,7 +9,7 @@ In terminal A, run:
     docker exec -it snmp_container bash
 
 In terminal B, run:
-    docker exec -it snmp_container1 bash
+    docker exec -it snmp_container2 bash
 
 Once both terminals have access to the Containers
 In terminal A, setup snmp agent by running:
@@ -19,10 +19,16 @@ In terminal B, you can now run walk, set, get commands:
     WALK example:
         snmpwalk -v3 -l authPriv -u myuser -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 1.3.6.1.2.1.1
 
+        // eid walk iso.3.6.1.6.3.10.2.1.1.0
+                    iso.3.6.1.6.3.10.2.1.1.0
+        snmpwalk -v3 -l authPriv -u myuser -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 iso.3.6.1.6.3.10.2.1.1.0
+
     GET example:
         snmpget -v3 -l authPriv -u myuser -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 iso.3.6.1.2.1.1.1.0
 
         ENGINE-ID:
+            snmpget -v3 -l authPriv -u myuser -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 iso.3.6.1.6.3.10.2.1.1.0
+
             snmpget -v3 -l authPriv -u myuser -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 iso.3.6.1.6.3.10.2.1.1.0
         OUTPUT:
             iso.3.6.1.6.3.10.2.1.1.0 = Hex-STRING: 80 00 1F 88 80 08 C0 02 1B 09 EB 0E 68 00 00 00 00
@@ -31,21 +37,36 @@ In terminal B, you can now run walk, set, get commands:
         snmpset -v3 -u myuser -l authPriv -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 iso.3.6.1.2.1.1.5.0 s "My New Hostname"
         
         Check result:
-        snmpget -v3 -l authPriv -u myuser -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 iso.3.6.1.2.1.1.5.0
-        
-        snmpset -v3 -u myuser -l authPriv -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 iso.3.6.1.2.1.1.5.0 s "bob"
-        
-        snmpget -v3 -l authPriv -u myuser -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 iso.3.6.1.2.1.1.5.0
+            snmpget -v3 -l authPriv -u myuser -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 iso.3.6.1.2.1.1.5.0
+            
+            snmpset -v3 -u myuser -l authPriv -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 iso.3.6.1.2.1.1.5.0 s "bob"
+            
+            snmpget -v3 -l authPriv -u myuser -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 iso.3.6.1.2.1.1.5.0
 
-        snmpset -v3 -u myuser -l authPriv -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 iso.3.6.1.2.1.1.5.0 s "bob"
-
+            snmpset -v3 -u myuser -l authPriv -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 iso.3.6.1.2.1.1.5.0 s "bob"
 
         USING ENGINE-ID:
-            -e 80001F888008C0021B09EB0E6800000000
-            snmpset -v3 -u myuser -l authPriv -a SHA -A mypassword -x AES -X myencryptionpassword -e 80001F888008C0021B09EB0E6800000000 192.168.100.2 iso.3.6.1.2.1.1.5.0 s "engine"
+            msgAuthoritativeEngineID: 80001f88806619617ca00d0f6800000000
+            lowercase = 80001f88806619617ca00d0f68000000
+            
+            snmpset -v3 -u myuser -l authPriv -a SHA -A mypassword -x AES -X myencryptionpassword -e 80001f88806619617ca00d0f6800000000 192.168.100.2 iso.3.6.1.2.1.1.5.0 s "engine"
 
             snmpget -v3 -l authPriv -u myuser -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 iso.3.6.1.2.1.1.5.0
 
 
+OTHER:
+INPUT:
+ps aux | grep snmpd
+
+OUTPUT: 
+root        43  0.0  0.0   3528  1640 pts/1    S+   08:49   0:00 grep --color=auto snmpd
+get snmpd processes output
+
+INPUT:
+snmpd -f -Le -DALL
+    OR
+service snmpd start
+
+netstat -tuln | grep 161
 
 
