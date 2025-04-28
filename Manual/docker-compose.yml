@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  snmp-container:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: snmp_container
+    stdin_open: true
+    tty: true
+    ports:
+      - "161:161/udp"
+    volumes:
+      - .:/app
+    environment:
+      - SNMPD_VERSION=v3
+    networks:
+      my_network:
+        ipv4_address: 192.168.100.2
+
+  snmp-container2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: snmp_container2
+    stdin_open: true
+    tty: true
+    ports:
+      - "162:161/udp"
+    volumes:
+      - .:/app
+    environment:
+      - SNMPD_VERSION=v3
+    networks:
+      my_network:
+        ipv4_address: 192.168.100.3
+
+networks:
+  my_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "192.168.100.0/24"

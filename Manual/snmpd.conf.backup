@@ -1,0 +1,64 @@
+###########################################################################
+#
+# snmpd.conf
+# An example configuration file for configuring the Net-SNMP agent ('snmpd')
+# See snmpd.conf(5) man page for details
+#
+###########################################################################
+
+# SECTION: System Information Setup
+#
+# syslocation: The [typically physical] location of the system.
+sysLocation    Sitting on the Dock of the Bay
+sysContact     Me <me@example.org>
+
+# sysservices: The proper value for the sysServices object.
+sysServices    72
+
+###########################################################################
+# SECTION: Agent Operating Mode
+#
+#   This section defines how the agent will operate when it
+#   is running.
+
+# master: Should the agent operate as a master agent or not.
+#   Currently, the only supported master agent type for this token
+#   is "agentx".
+master  agentx
+
+# agentaddress: The IP address and port number that the agent will listen on.
+#   This binds SNMP to both IPv4 and IPv6 addresses on UDP port 161.
+agentaddress udp:161,udp6:[::]:161
+
+###########################################################################
+# SECTION: Access Control Setup
+#
+#   This section defines who is allowed to talk to your running
+#   snmp agent.
+
+# Views
+#   arguments viewname included [oid]
+view   systemonly  included   .1.3.6.1.2.1.1
+view   systemonly  included   .1.3.6.1.2.1.25.1
+
+# rocommunity: a SNMPv1/SNMPv2c read-only access community name
+#   arguments:  community [default|hostname|network/bits] [oid | -V view]
+
+# Read-only access to everyone to the systemonly view
+rocommunity  public default -V systemonly
+rocommunity6 public default -V systemonly
+
+# SNMPv3 doesn't use communities, but users with (optionally) an
+# authentication and encryption string. This user needs to be created
+# with what they can view with rouser/rwuser lines in this file.
+#
+# createUser username (MD5|SHA|SHA-512|SHA-384|SHA-256|SHA-224) authpassphrase [DES|AES] [privpassphrase]
+# e.g.
+# createuser authPrivUser SHA-512 myauthphrase AES myprivphrase
+
+# SNMPv3 user with authentication and encryption
+rouser User authPriv -V systemonly
+
+# Add additional configuration if needed
+# include a all *.conf files in a directory
+includeDir /etc/snmp/snmpd.conf.d

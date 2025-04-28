@@ -1,0 +1,43 @@
+PROJ_DIR: /mnt/o/Workspace/Containers/XEContainers/SNMP/Manual
+
+
+
+
+INPUT:
+ps aux | grep snmpd
+
+OUTPUT: 
+root        43  0.0  0.0   3528  1640 pts/1    S+   08:49   0:00 grep --color=auto snmpd
+get snmpd processes output
+
+INPUT:
+snmpd -f -Le -DALL
+    OR
+service snmpd start
+
+
+netstat -tuln | grep 161
+
+# snmpwalk -v 3 -u User -l authPriv -A AuthPassword -X PrivPassword -a SHA -x AES128 192.168.100.2
+
+
+
+
+On snmp_container, get ip using "ip address"
+On snmp_container2, get ip using "ip address"
+
+On snmp_container, check if smpd process is running by running
+"ps aux | grep snmpd"
+if the output is only:
+    root        43  0.0  0.0   3528  1640 pts/1    S+   08:49   0:00 grep --color=auto snmpd
+then run:
+    service snmpd start
+
+On snmp_container2, ping snmp_container to get the ip
+Using that ip, on snmp_container2, run
+    snmpwalk -v 3 -u User -l authPriv -A AuthPassword -X PrivPassword -a SHA -x AES128 <IP>
+
+
+Purpose	Command
+Get Engine ID	snmpget -v 3 -u User -l authPriv -A AuthPassword -X PrivPassword -a SHA -x AES128 192.168.100.2 1.3.6.1.6.3.10.2.1.1.0
+Heartbeat Write	snmpset -v 3 -u User -l authPriv -A AuthPassword -X PrivPassword -a SHA -x AES128 192.168.100.2 1.3.6.1.2.1.1.6.0 s "Heartbeat at $(date)"
