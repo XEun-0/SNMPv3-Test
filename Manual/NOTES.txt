@@ -41,3 +41,11 @@ Using that ip, on snmp_container2, run
 Purpose	Command
 Get Engine ID	snmpget -v 3 -u User -l authPriv -A AuthPassword -X PrivPassword -a SHA -x AES128 192.168.100.2 1.3.6.1.6.3.10.2.1.1.0
 Heartbeat Write	snmpset -v 3 -u User -l authPriv -A AuthPassword -X PrivPassword -a SHA -x AES128 192.168.100.2 1.3.6.1.2.1.1.6.0 s "Heartbeat at $(date)"
+
+// GET ENGINE-ID?
+# output:
+fjura@DESKTOP-IB10381:~$ docker exec -it snmp_container2 bash
+root@167d18387628:/# snmpget -v3 -l authPriv -u myuser -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 iso.3.6.1.6.3.10.2.1.1.0 
+
+iso.3.6.1.6.3.10.2.1.1.0 = Hex-STRING: 80 00 1F 88 80 14 73 EC 22 C7 E9 0E 68 00 00 00 00
+

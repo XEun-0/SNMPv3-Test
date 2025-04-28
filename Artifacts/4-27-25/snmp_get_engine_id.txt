@@ -1,0 +1,11 @@
+fjura@DESKTOP-IB10381:~$ docker exec -it snmp_container2 bash
+root@167d18387628:/# snmpget -v3 -l authPriv -u myuser -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 iso.3.6.1.6.3.10.2.1.1.0
+iso.3.6.1.6.3.10.2.1.1.0 = Hex-STRING: 80 00 1F 88 80 14 73 EC 22 C7 E9 0E 68 00 00 00
+00
+root@167d18387628:/# exit
+exit
+fjura@DESKTOP-IB10381:~$ docker exec -it snmp_container2 bash
+root@4b942c128c3c:/# snmpget -v3 -l authPriv -u myuser -a SHA -A mypassword -x AES -X myencryptionpassword 192.168.100.2 iso.3.6.1.6.3.10.2.1.1.0
+iso.3.6.1.6.3.10.2.1.1.0 = Hex-STRING: 80 00 1F 88 80 08 C0 02 1B 09 EB 0E 68 00 00 00
+00
+root@4b942c128c3c:/#
