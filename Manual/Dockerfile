@@ -13,7 +13,12 @@ RUN apt-get update && \
     net-tools \
     vim \
     libsnmp-dev \
-    tshark && \
+    tshark \
+    build-essential \
+    python3 \
+    python3-pip \
+    python3-dev \
+    && \
     # Clean up apt cache to reduce image size
     rm -rf /var/lib/apt/lists/*
 
