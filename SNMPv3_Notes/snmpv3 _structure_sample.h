@@ -77,3 +77,20 @@ struct SNMPv3Message {
     } msgData;
 };
 
+// int seq_offset = current_offset();         // start of sequence
+// write_byte(0x30);                          // SEQUENCE tag
+// write_byte(0x00);                          // dummy length (to be patched)
+// int seq_content_offset = current_offset(); // encode inside here
+// write_something(...);
+// int final_offset = current_offset();
+// int seq_len = final_offset - seq_content_offset;
+// patch_length_at(seq_offset + 1, seq_len);  // ❌ rel_offset is negative here
+
+// uint8_t temp_buf[512];
+// int content_len = encode_scoped_pdu_content(temp_buf + sizeof(temp_buf)); // encode from end backward
+// int seq_len = content_len + encoded_length_field_size(content_len) + 1;
+// uint8_t *start = buffer + current_offset - seq_len;
+
+// start[0] = 0x30; // SEQUENCE tag
+// encode_length(&start[1], content_len);
+// memcpy(&start[1 + length_size], &temp_buf[sizeof(temp_buf) - content_len], content_len);

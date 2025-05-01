@@ -394,3 +394,185 @@ ScopedPDU (plaintext) → ASN.1 SEQUENCE	0x30 <len> <contextEngineID> <contextNa
 Encrypt ScopedPDU using AES-128-CFB	ciphertext
 Wrap ciphertext in ASN.1 OCTET STRING	0x04 <len> <ciphertext> → goes in msgData
 Would you like a C++ example of how to generate the AES IV and run AES-128 encryption in CFB mode for this context?
+
+4/30 Notes about encoding error
+Here's a portable and minimal implementation of the sha1_hmac function that is compatible with your SNMPv3 encoding code. This function follows the standard HMAC algorithm using SHA1 (as required by SNMPv3 for authentication):
+
+✅ Add This to Your Code Panel
+cpp
+Copy
+Edit
+#include <string.h>
+#include <openssl/sha.h>  // Or replace with a portable SHA1 if OpenSSL is not available
+
+#define SHA1_BLOCK_SIZE 64
+#define SHA1_DIGEST_LENGTH 20
+
+void sha1_hmac(const uint8_t *key, size_t key_len,
+               const uint8_t *data, size_t data_len,
+               uint8_t *out_digest) {
+    uint8_t k_ipad[SHA1_BLOCK_SIZE] = {0};
+    uint8_t k_opad[SHA1_BLOCK_SIZE] = {0};
+    uint8_t tk[SHA1_DIGEST_LENGTH];
+    uint8_t inner_digest[SHA1_DIGEST_LENGTH];
+    SHA_CTX ctx;
+
+    // Step 1: If key > block size, hash it
+    if (key_len > SHA1_BLOCK_SIZE) {
+        SHA1(key, key_len, tk);
+        key = tk;
+        key_len = SHA1_DIGEST_LENGTH;
+    }
+
+    // Step 2: Pad key to block size
+    memcpy(k_ipad, key, key_len);
+    memcpy(k_opad, key, key_len);
+    for (int i = 0; i < SHA1_BLOCK_SIZE; i++) {
+        k_ipad[i] ^= 0x36;
+        k_opad[i] ^= 0x5c;
+    }
+
+    // Step 3: Inner hash
+    SHA1_Init(&ctx);
+    SHA1_Update(&ctx, k_ipad, SHA1_BLOCK_SIZE);
+    SHA1_Update(&ctx, data, data_len);
+    SHA1_Final(inner_digest, &ctx);
+
+    // Step 4: Outer hash
+    SHA1_Init(&ctx);
+    SHA1_Update(&ctx, k_opad, SHA1_BLOCK_SIZE);
+    SHA1_Update(&ctx, inner_digest, SHA1_DIGEST_LENGTH);
+    SHA1_Final(out_digest, &ctx);
+}
+✅ Usage
+This function can now be called within your snmpv3_derive_auth_key() function to localize the key using the engine ID:
+
+cpp
+Copy
+Edit
+// Example usage in snmpv3_derive_auth_key
+sha1_hmac(digest, SNMP_AUTH_KEY_LEN, engineID, engineIDLen, out_authKey);
+Would you like me to replace OpenSSL with a portable SHA1 implementation that doesn't rely on external libraries?
+
+
+
+
+
+
+You said:
+most of error seems to be something about rel_offset being -154 and invalid seek operation : offset =-154, pbuf_stream->length = 1318
+
+
+ChatGPT said:
+The error you're seeing — rel_offset = -154, along with invalid seek operation : offset = -154, pbuf_stream->length = 1318 — suggests that your encoding logic is trying to backtrack in the buffer by more bytes than it currently has available. This is typically a buffer underflow caused by incorrect length calculations or invalid ASN.1 field wrapping.
+
+Here's how it might be happening in your SNMPv3 encoder:
+Incorrect ASN.1 Length Encoding: If a SEQUENCE or field is encoded but the length value written does not match the actual size of the content, then later stream operations (e.g. seeking to re-encode lengths) can fail when trying to back-patch lengths.
+
+Offset Mismanagement: Many ASN.1 encoders use a strategy of writing data in reverse (from tail to head), so offsets like rel_offset must always be >= 0 and ≤ buffer size. If you subtract more than you've written, you'll get a negative offset.
+
+✅ What You Should Check
+When calling your asn1_encode_sequence(), make sure:
+
+You're calculating the length of inner elements correctly.
+
+You write the correct length before the tag.
+
+You're not double-counting lengths when nesting sequences.
+
+Padding & Alignment: ASN.1 fields like OCTET STRING and SEQUENCE have length bytes that can be 1–5 bytes long. If you don’t account for that, your encoded fields will be off.
+
+🔧 Example Fix Pattern
+Suppose you're encoding a SEQUENCE like:
+
+c
+Copy
+Edit
+uint8_t *ptr = buffer_end;
+ptr -= encoded_inner_len;
+memcpy(ptr, inner_data, encoded_inner_len);
+
+size_t total_len = encoded_inner_len;
+ptr -= encode_length(ptr, total_len);   // returns number of bytes written
+ptr--; *ptr = 0x30;  // SEQUENCE tag
+If encoded_inner_len was miscomputed, or if the encode_length() returned the wrong size, the final structure would be malformed, and seeking back to apply HMAC or encode enclosing structures would fail.
+
+🧪 How to Debug
+Add runtime checks or logs around your length tracking and offset arithmetic like:
+
+c
+Copy
+Edit
+if (rel_offset < 0 || rel_offset > pbuf_stream->length) {
+    printf("Invalid offset: %d (buffer length: %d)\n", rel_offset, pbuf_stream->length);
+    return ERR_VAL;
+}
+Would you like me to help review your ASN.1 encoder or TLV wrapper macros to pinpoint this exact miscalculation?
+
+
+Thanks for that extra detail — based on the buffer tracking info you provided:
+
+Allocated pbuf_size: 1472 bytes
+
+Initial offset: 0
+
+Later frame_size: 147
+
+Then outbound_scoped_pdu_seq_offset: 82
+
+Then rel_offset: -154 → ❌ (invalid seek)
+
+You're likely hitting this problem due to encoding a TLV sequence (likely the ScopedPDU or full message sequence) where the offset is computed relative to a future position, then back-calculated — but the buffer pointer or stream object has already moved past the allowed range.
+
+🧠 Understanding What's Likely Happening
+You encode a SEQUENCE (e.g., ScopedPDU) and remember the offset.
+
+Later, you finish writing the contents inside it (contextEngineID, contextName, PDU).
+
+You want to patch the SEQUENCE's length by seeking back to its offset (rel_offset = current_pos - sequence_start_offset).
+
+But if sequence_start_offset is ahead of current_pos, you'll get a negative rel_offset, e.g., rel_offset = 82 - 236 = -154.
+
+This is exactly your case:
+
+text
+Copy
+Edit
+offset = -154, pbuf_stream->length = 1318
+✅ Fix Approach
+You should encode inner elements first, and only after that, wrap them with their SEQUENCE or container TLV, so you never need to seek backward across things you haven’t written yet.
+
+Instead of this pattern (which fails):
+c
+Copy
+Edit
+int seq_offset = current_offset();         // start of sequence
+write_byte(0x30);                          // SEQUENCE tag
+write_byte(0x00);                          // dummy length (to be patched)
+int seq_content_offset = current_offset(); // encode inside here
+write_something(...);
+int final_offset = current_offset();
+int seq_len = final_offset - seq_content_offset;
+patch_length_at(seq_offset + 1, seq_len);  // ❌ rel_offset is negative here
+Use this pattern:
+c
+Copy
+Edit
+uint8_t temp_buf[512];
+int content_len = encode_scoped_pdu_content(temp_buf + sizeof(temp_buf)); // encode from end backward
+int seq_len = content_len + encoded_length_field_size(content_len) + 1;
+uint8_t *start = buffer + current_offset - seq_len;
+
+start[0] = 0x30; // SEQUENCE tag
+encode_length(&start[1], content_len);
+memcpy(&start[1 + length_size], &temp_buf[sizeof(temp_buf) - content_len], content_len);
+🛠 Action You Can Take in Your Code
+In your code canvas, you're using EncodedField, so:
+
+Ensure you encode leaf fields first into EncodedField.
+
+Then combine them in order into parents (like ScopedPDU, then msgData, etc.).
+
+Never try to pre-reserve and patch length later with negative seeks — always buffer bottom-up.
+
+Would you like me to show a specific working example using EncodedField that encodes a ScopedPDU correctly with length-wrapped SEQUENCE?
