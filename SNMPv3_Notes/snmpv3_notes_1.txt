@@ -1,0 +1,138 @@
+Here's a comprehensive breakdown of a legal SNMPv3 message structure, including what gets ASN.1 encoded, authenticated, and encrypted. This assumes you're implementing SNMPv3 with User-based Security Model (USM) and AES encryption (RFC 3414 + RFC 3826), using your own crypto code (i.e. not OpenSSL).
+
+🔐 SNMPv3 Packet Layers
+1. Top-Level ASN.1 SEQUENCE
+Everything in an SNMPv3 message is wrapped in a top-level ASN.1 SEQUENCE.
+
+2. msgVersion
+Type: Integer
+
+Value: 3 (for SNMPv3)
+
+Encoding: ASN.1 Integer TLV
+
+Example: 0x02 0x01 0x03
+
+3. msgGlobalData (SEQUENCE of 4 fields)
+Each field is ASN.1 encoded individually and then wrapped in a SEQUENCE:
+
+msgID: Integer (random or incrementing)
+
+msgMaxSize: Integer (e.g., 65535)
+
+msgFlags: OctetString
+
+One byte: 0x00 = noAuthNoPriv, 0x01 = authNoPriv, 0x03 = authPriv
+
+msgSecurityModel: Integer (value 3 for USM)
+
+All 4 fields are ASN.1 encoded and then packed inside an outer SEQUENCE.
+
+4. msgSecurityParameters
+Encoding: ASN.1 OctetString containing a nested ASN.1 SEQUENCE
+
+Fields (USM):
+
+msgAuthoritativeEngineID: OctetString
+
+msgAuthoritativeEngineBoots: Integer
+
+msgAuthoritativeEngineTime: Integer
+
+msgUserName: OctetString
+
+msgAuthenticationParameters: OctetString (12 bytes, initially all zeros if auth is used)
+
+msgPrivacyParameters: OctetString (8-byte salt for AES)
+
+These are ASN.1 encoded as a nested SEQUENCE, then wrapped inside a TLV-OctetString for msgSecurityParameters.
+
+5. msgData
+The form depends on msgFlags:
+
+If noAuthNoPriv: plaintext ScopedPDU
+
+If authNoPriv: plaintext ScopedPDU (authentication applied later)
+
+If authPriv: encrypted ScopedPDU
+
+🔄 ScopedPDU Format
+ASN.1 SEQUENCE containing:
+
+contextEngineID: OctetString
+
+contextName: OctetString
+
+data: GetRequest-PDU / Response-PDU / etc.
+
+PDU (e.g. GetRequest)
+SEQUENCE
+
+requestID: Integer
+
+errorStatus: Integer
+
+errorIndex: Integer
+
+varBindList: SEQUENCE of varbinds
+
+VarBind
+SEQUENCE
+
+OID
+
+Value (e.g. Null, Integer, OctetString)
+
+🔒 Encryption & Authentication Layers
+✅ Authentication (HMAC-MD5 or HMAC-SHA1)
+Applied over everything from msgVersion to msgData
+
+msgAuthenticationParameters is 12 bytes of 0x00 during HMAC calculation
+
+Replace the 12 bytes with the computed HMAC output after HMAC is done
+
+🔐 Privacy (AES-128-CFB)
+Applied to the ScopedPDU, not the whole message
+
+IV = engineBoots (4B) + engineTime (4B) + salt (8B) = 16 bytes
+
+Encrypted data is wrapped as:
+
+asn.1
+Copy
+Edit
+msgData ::= encryptedPDU ::= OCTET STRING
+🧱 Example SNMPv3 Message Structure
+pgsql
+Copy
+Edit
+SEQUENCE {
+  msgVersion = INTEGER(3)
+  msgGlobalData = SEQUENCE {
+    msgID = INTEGER
+    msgMaxSize = INTEGER
+    msgFlags = OCTET STRING
+    msgSecurityModel = INTEGER(3)
+  }
+  msgSecurityParameters = OCTET STRING {
+    SEQUENCE {
+      engineID
+      engineBoots
+      engineTime
+      userName
+      authParam (12B)
+      privParam (8B)
+    }
+  }
+  msgData = OCTET STRING {
+    [ENCRYPTED ScopedPDU if privacy, else PLAIN ScopedPDU]
+  }
+}
+📦 Summary of Encoding & Crypto
+
+Field	ASN.1 Encoded	Authenticated	Encrypted (AES)
+msgVersion	✅	✅	❌
+msgGlobalData	✅	✅	❌
+msgSecurityParameters	✅ (OctetStr)	✅	❌
+ScopedPDU (in msgData)	✅	✅	✅ (if privacy)
+Would you like me to walk you through how to serialize and authenticate/encrypt this using your current builder functions?

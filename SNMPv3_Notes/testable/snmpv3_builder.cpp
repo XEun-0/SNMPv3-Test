@@ -80,6 +80,15 @@ typedef struct {
     EncodedField value;
 } VarBind;
 
+// l_snmp_varbind
+// struct l_snmp_varbind {
+//     struct l_snmp_varbind *next;
+//     struct snmp_obj_id oid;
+//     u8_t type;
+//     u16_t value_len;
+//     void *value;
+// };
+
 // VarBindList ::= SEQUENCE OF VarBind
 typedef struct {
     VarBind varbinds[MAX_VARBINDS];
@@ -99,7 +108,7 @@ typedef struct {
 typedef struct {
     EncodedField msgVersion;
     HeaderData   msgGlobalData;
-    EncodedField msgSecurityParams;
+    EncodedField msgSecurityParams; // use SecurityParameters
     EncodedField msgData;
 } SNMPv3Message;
 
@@ -218,4 +227,99 @@ int main() {
     memcpy(msg.msgGlobalData.msgFlags.data, "\x01", 1);
     msg.msgGlobalData.msgSecurityModel.len = 1;
     memcpy(msg.msgGlobalData.msgSecurityModel.data, "\x02", 1);
+}
+
+int main() {
+    SNMPv3Message msg;
+
+    // Encode SNMP version (version 3)
+    if (encode_snmp_version(3, &msg.msgVersion) != 0) {
+        printf("Failed to encode SNMP version\n");
+        return 1;
+    }
+
+    // Fill Global Header
+    encode_integer(1234, &msg.msgGlobalData.msgID);               // msgID
+    encode_integer(65535, &msg.msgGlobalData.msgMaxSize);         // msgMaxSize
+    encode_octet_string((uint8_t*)"\x07", 1, &msg.msgGlobalData.msgFlags); // msgFlags (reportable)
+    encode_integer(3, &msg.msgGlobalData.msgSecurityModel);       // SNMPv3 USM
+
+    // Encode dummy Security Parameters (normally ASN.1 encoded)
+    const char *dummy_sec = "secparams";
+    encode_octet_string((const uint8_t*)dummy_sec, strlen(dummy_sec), &msg.msgSecurityParams);
+
+    // Encode dummy ScopedPDU (normally ASN.1 encoded)
+    const char *dummy_pdu = "scopedpdu";
+    encode_octet_string((const uint8_t*)dummy_pdu, strlen(dummy_pdu), &msg.msgData);
+
+    // Final buffer
+    uint8_t buffer[1024];
+    size_t final_len = 0;
+    if (build_snmpv3_message(&msg, buffer, sizeof(buffer), &final_len) != 0) {
+        printf("Failed to build SNMPv3 message\n");
+        return 2;
+    }
+
+    // Print hex output
+    printf("SNMPv3 message (%zu bytes):\n", final_len);
+    for (size_t i = 0; i < final_len; ++i) {
+        printf("%02X ", buffer[i]);
+    }
+    printf("\n");
+
+    return 0;
+}
+
+// ⛳ Summary of ASN.1 Requirements
+
+// Field	ASN.1 Type	Notes
+// msgAuthoritativeEngineID	OCTET STRING	As provided by agent (or default)
+// msgAuthoritativeEngineBoots	INTEGER	Boot count (integer, usually 0 or more)
+// msgAuthoritativeEngineTime	INTEGER	Time since boot (seconds)
+// msgUserName	OCTET STRING	The user name
+// msgAuthenticationParameters	OCTET STRING	Always 12 bytes; set to 00...00 before HMAC, overwrite with result
+// msgPrivacyParameters	OCTET STRING	8-byte salt/IV
+// Would you like me to:
+
+// Add helper code that generates the zero-filled msgAuthenticationParameters?
+
+// Add a full HMAC-insertion routine that scans your buffer and overwrites those 12 bytes in place?
+
+struct pbuf {
+    struct pbuf *next;
+    void *payload;
+
+    u16_t tot_len;
+    u16_t len;
+    u8_t type;
+    u8_t flags;
+    u8_t if_idx;
+    u16_t ref;
+};
+
+
+snmp_asn1_enc_oid_cnt(const u32_t *oid, u16_t oid_len, u16_t *octets_needed) {
+    u32_t sub_id;
+
+    *octets_needed = 0;
+
+    if (oid_len > 1) {
+        (*octets_needed)++;
+        oid_len -= 2;
+        oid += 2;
+    }
+
+    while (oid_len > 0) {
+        oid_len--;
+        sub_id  = *oid;
+
+        sub_id >>= 7;
+        (*octets_needed)++;
+
+        while (sub_id > 0) {
+            sub_id >>= 7;
+            (*octets_needed)++;
+        }
+        oid++;
+    }
 }
