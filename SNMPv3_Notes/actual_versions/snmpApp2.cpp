@@ -348,6 +348,7 @@ void snmpv3_manager_send() {
 //                 Error Status: noError (0)
 //                 Error Index: 0
 //                 Variable Bindings: 0
+//
 // 🧬 Raw Byte Breakdown (for reference)
 // text
 // Copy

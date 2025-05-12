@@ -7,6 +7,7 @@ RUN apt-get update && \
     snmpd \
     snmp \
     netcat-openbsd \
+    wireshark \
     tcpdump \
     iproute2 \
     inetutils-ping \
