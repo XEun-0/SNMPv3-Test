@@ -263,3 +263,108 @@ err_t sendSnmpData(void *handle)  {
 // └─ VarBind	SEQUENCE	0x30
 // ├─ name	OBJECT IDENTIFIER	0x06
 // └─ value	e.g., NULL	0x05
+
+
+// what about with authpriv and no engine boot/time only engine id? how do i send a discovery get packet if i need to encode the passwords with engineboots and time?
+
+
+// ChatGPT said:
+// Excellent question — this is one of the most nuanced parts of SNMPv3.
+
+// 🛑 Problem Summary:
+// You're trying to send a discovery SNMPv3 packet to an agent that requires authPriv, but you don't yet know the agent's:
+
+// engineBoots
+
+// engineTime
+
+// Yet, to generate the key for encryption/authentication, you need the engineID, and to authenticate the request, you need a proper auth HMAC computed with the correct engineBoots/time.
+
+// ✅ Good News:
+// SNMPv3 supports a built-in discovery mechanism specifically for this. Here’s how it works — even for authPriv.
+
+// 🔁 Discovery Sequence (for authPriv agent):
+// 🔹 Step 1: Discovery Probe (Unauthenticated)
+// You send a discovery probe:
+
+// msgFlags = 0x03 → noAuthNoPriv
+
+// msgSecurityParameters: includes empty engineID, boots, time, username
+
+// ScopedPDU is a normal GetRequest (with empty VarBind or a real OID)
+
+// No HMAC
+
+// No encryption
+
+// The agent does not reject this even if it normally requires authPriv.
+
+// It simply replies with:
+
+// The real engineID, engineBoots, and engineTime
+
+// The msgData is unencrypted and unauthenticated
+
+// This is allowed per the SNMPv3 spec
+
+// You now cache those values locally.
+
+// 🔹 Step 2: Real AuthPriv Request
+// Now that you have:
+
+// engineID
+
+// engineBoots
+
+// engineTime
+
+// You can:
+
+// Generate the HMAC-SHA1/MD5 key using engineID
+
+// Fill in the correct engineBoots and engineTime values in the USM
+
+// Encrypt the ScopedPDU using AES/DES
+
+// Add HMAC over the full message with correct authParameters
+
+// Send the actual authPriv request.
+
+// 🔐 Why This Works:
+// The discovery probe is always allowed by the agent. The agent doesn’t require authentication until it knows you know its engine parameters. So the discovery is unprotected by design, even if future traffic is protected.
+
+// 🛠️ What to Do in Code:
+// For Discovery Packet:
+// c
+// Copy
+// Edit
+// msgFlags = 0x03; // noAuthNoPriv
+// engineID = empty;
+// engineBoots = 0;
+// engineTime = 0;
+// username = ""; // or valid username depending on agent
+// authParameters = 12 zero bytes
+// privParameters = empty
+// ScopedPDU = GetRequest with dummy OID or valid one
+// No encryption. No HMAC.
+
+// Send that.
+
+// For Real Request (authPriv):
+// Use the agent's engineID to derive your key:
+
+// c
+// Copy
+// Edit
+// localizedKey = password_to_key(password, engineID)
+// Use engineBoots/time from agent's last reply
+
+// Fill msgSecurityParameters with real values
+
+// Encrypt ScopedPDU using AES/DES with privKey
+
+// Compute HMAC with authKey
+
+// Insert first 12 bytes of HMAC into authParameters
+
+// Would you like a C code sketch for sending the discovery probe or the key generation part?
